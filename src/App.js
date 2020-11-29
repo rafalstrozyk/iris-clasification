@@ -44,7 +44,9 @@ const App = () => {
         <StyledFooter>
           <Link href="https://github.com/rafalstrozyk">Rafał Stróżyk</Link>
 
-          <Link href="https://github.com/rafalstrozyk">Git repository</Link>
+          <Link href="https://github.com/rafalstrozyk/iris-clasification">
+            Git repository
+          </Link>
         </StyledFooter>
       </Site>
     </Store>
