@@ -1,25 +1,54 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import styled from 'styled-components';
+import GlobalStyle from './globalStyle';
+import Store from './globalState/store';
+import SettingsGroup from './components/settingsGroup';
+import Link from './components/Link';
 
-function App() {
+const StyledContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const Site = styled.div`
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
+const StyledFooter = styled.footer`
+  margin-top: 20px;
+  background-color: #012340;
+  color: #f2ebdc;
+  width: 100%;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  > *:not(:last-child) {
+    margin-right: 20px;
+  }
+`;
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Store>
+      <GlobalStyle />
+      <Site>
+        <StyledContainer>
+          <h1>Iris clasification app</h1>
+          <SettingsGroup />
+        </StyledContainer>
+        <StyledFooter>
+          <Link href="https://github.com/rafalstrozyk">Rafał Stróżyk</Link>
+
+          <Link href="https://github.com/rafalstrozyk">Git repository</Link>
+        </StyledFooter>
+      </Site>
+    </Store>
   );
-}
+};
 
 export default App;
