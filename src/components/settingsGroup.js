@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState} from 'react';
 import styled from 'styled-components';
 import IrisSliderGroup from './irisSliderGroup';
 import Button from './Button';
@@ -14,6 +14,10 @@ import irisClasification, {
   irisNameClasification,
   resetAllSettings,
   svgGenerator,
+  setIterations,
+  setLearningRate,
+  getLearningRate,
+  getIterations,
 } from '../brain';
 
 const StyledSettingsGroup = styled.div`
@@ -50,8 +54,13 @@ const SettingsGroup = () => {
   const [hiddenLayers, setHiddenLayers] = useState(getHiddenLayers().join(' '));
   const [irisName, setIrisName] = useState('');
   const [irisTypeArray, setIrisTypeArray] = useState([0, 0, 0]);
+  const [iterations, setIteration] = useState(getIterations());
+  const [learning, setLearning] = useState(getLearningRate());
+  const [openClasificationWindow, setOpenClasificationWindow] = useState(false);
 
   function handleIrisClarification() {
+    setIsClasification(true);
+    setOpenClasificationWindow(true);
     const output = irisClasification([
       state.sepalLength,
       state.sepalWidth,
@@ -61,7 +70,6 @@ const SettingsGroup = () => {
 
     setIrisName(irisNameClasification(output));
     setIrisTypeArray(output);
-    setIsClasification(true);
   }
 
   function handleTrain() {
@@ -80,14 +88,29 @@ const SettingsGroup = () => {
     hangeHiddenLayers(intArrayNonNan);
   }
 
+  function handleIterations(e) {
+    // setIsTrainig(false);
+    setIteration(e.target.value);
+    setIterations(parseInt(e.target.value));
+  }
+  function handleLearningRate(e) {
+    // setIsTrainig(false);
+    setLearning(e.target.value);
+    setLearningRate(parseFloat(e.target.value));
+  }
+
   function handleResetAll() {
     resetAllSettings();
     setIsClasification(false);
     setIsTrainig(false);
     setErrors(errorInfo());
     setHiddenLayers(getHiddenLayers().join(' '));
+    setIterations(1);
+    setLearning(getLearningRate());
+    setIteration(getIterations());
     setIrisName('');
     setIrisTypeArray([0, 0, 0]);
+    console.log(getIterations());
   }
 
   return (
@@ -101,6 +124,25 @@ const SettingsGroup = () => {
             value={hiddenLayers}
             onChange={(e) => handleTextToArray(e)}
           />
+          <label htmlFor="iterations">Iterations:</label>
+          <Input
+            id="iterations"
+            type="number"
+            value={iterations}
+            min="1"
+            max="2000"
+            onChange={(e) => handleIterations(e)}
+          />
+          <label htmlFor="learning-rate">Learning Rate:</label>
+          <Input
+            id="learning-rate"
+            type="number"
+            value={learning}
+            min="0.1"
+            step="0.1"
+            max="0.9"
+            onChange={(e) => handleLearningRate(e)}
+          />
         </div>
         <div className="container">
           <Textarea />
@@ -108,11 +150,11 @@ const SettingsGroup = () => {
         </div>
         <Button onClick={handleTrain}>Train</Button>
       </StyledTrainBox>
+      <p>Error: {errors.error}</p>
+      <p>Iterations: {errors.iterations}</p>
 
       {isTraining && (
         <>
-          <p>Error: {errors.error}</p>
-          <p>Iterations: {errors.iterations}</p>
           <div>
             <img
               src={`data:image/svg+xml;utf8,${svgGenerator()}`}
@@ -124,7 +166,12 @@ const SettingsGroup = () => {
         </>
       )}
       {isClasification && (
-        <ClasificationWindw irisName={irisName} irisTypeArray={irisTypeArray} />
+        <ClasificationWindw
+          irisName={irisName}
+          isOpen={openClasificationWindow}
+          setIsOpen={setOpenClasificationWindow}
+          irisTypeArray={irisTypeArray}
+        />
       )}
     </StyledSettingsGroup>
   );

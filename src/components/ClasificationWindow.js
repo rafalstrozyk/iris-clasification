@@ -37,8 +37,8 @@ const StyledClassificationWindow = styled.div`
   }
 `;
 
-const ClasificationWindow = ({ irisName, irisTypeArray }) => {
-  const [isOpen, setIsOpen] = useState(true);
+const ClasificationWindow = ({ irisName, irisTypeArray, setIsOpen , isOpen}) => {
+  // const [isOpen, setIsOpen] = useState(true);
   const imgArray = [img1, img2, img3];
 
   function imageGenerate() {

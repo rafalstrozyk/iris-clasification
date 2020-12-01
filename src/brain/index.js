@@ -11,7 +11,7 @@ const initState = {
   irisData: irisLearningData,
   initHiddenLayers: [4, 3],
   initIterations: 1,
-  initLearnigRate: 0,
+  initLearnigRate: 0.1,
 };
 let state = initState;
 
@@ -52,18 +52,12 @@ export function irisTraining() {
     item.species === 'virginica' ? 1 : 0,
   ]);
 
-  const trainingData = state.irisData.map(
-    (item) => [
-      item.sepalLength,
-      item.sepalWidth,
-      item.petalLength,
-      item.petalWidth,
-    ],
-    {
-      iterations: state.initIterations,
-      learningRate: state.initLearnigRate,
-    }
-  );
+  const trainingData = state.irisData.map((item) => [
+    item.sepalLength,
+    item.sepalWidth,
+    item.petalLength,
+    item.petalWidth,
+  ]);
 
   const fullData = [];
   for (let i = 0; i < state.irisData.length; i++) {
@@ -72,10 +66,27 @@ export function irisTraining() {
       output: outputData[i],
     });
   }
+  console.log(state.initLearnigRate);
 
   net.train(fullData, {
     log: (error) => (state.errors = error),
+    logPeriod: 1,
+    iterations: state.initIterations,
+    learningRate: state.initLearnigRate,
   });
+}
+
+export function setIterations(iterations) {
+  state.initIterations = iterations;
+}
+export function setLearningRate(learningRate) {
+  state.initLearnigRate = learningRate;
+}
+export function getIterations() {
+  return state.initIterations;
+}
+export function getLearningRate() {
+  return state.initLearnigRate;
 }
 
 // clasification iris
