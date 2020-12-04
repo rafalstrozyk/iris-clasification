@@ -36,17 +36,19 @@ const StyledTrainBox = styled.div`
 
 const SettingsGroup = () => {
   const [state] = useContext(Context);
-  const [isTraining, setIsTrainig] = useState(false);
+  const [isLearning, setIsLearning] = useState(false);
   const [isClasification, setIsClasification] = useState(false);
   const [errors, setErrors] = useState(irisBrain.state.errors);
   const [hiddenLayers, setHiddenLayers] = useState(
     irisBrain.state.hiddenLayers.join(' ')
   );
+  const [errorThresh, setErrorThresh] = useState(irisBrain.state.errorThresh);
   const [irisName, setIrisName] = useState('');
   const [irisTypeArray, setIrisTypeArray] = useState([0, 0, 0]);
   const [iterations, setIteration] = useState(irisBrain.state.iterations);
   const [learning, setLearning] = useState(irisBrain.state.learnigRate);
   const [openClasificationWindow, setOpenClasificationWindow] = useState(false);
+  const [learningInfo, setLearningInfo] = useState(false);
 
   function handleIrisClarification() {
     setIsClasification(true);
@@ -62,35 +64,48 @@ const SettingsGroup = () => {
     setIrisTypeArray(output);
   }
 
-  function handleTrain() {
+  function handleLearn() {
+    setIsClasification(false);
     irisBrain.irisTraining();
     setErrors(irisBrain.state.errors);
-    setIsTrainig(true);
+    setIsLearning(true);
+    setLearningInfo(true);
   }
 
   function handleTextToArray(e) {
-    setIsTrainig(false);
+    setIsLearning(false);
+    setLearningInfo(false);
     setHiddenLayers(e.target.value);
     irisBrain.setHiddenLayers = e.target.value;
   }
 
   function handleIterations(e) {
+    setLearningInfo(false);
     setIteration(e.target.value);
     irisBrain.setIterations = e.target.value;
   }
   function handleLearningRate(e) {
+    setLearningInfo(false);
     setLearning(e.target.value);
     irisBrain.setLearningRate = e.target.value;
   }
 
+  function handleErrorThresh(e) {
+    setLearningInfo(false);
+    setErrorThresh(e.target.value);
+    irisBrain.setErrorThresh = e.target.value;
+  }
+
   function handleResetAll() {
+    setLearningInfo(false);
     irisBrain.resetAllSettings();
     irisBrain.state.iterations = 1;
     setIsClasification(false);
-    setIsTrainig(false);
+    setIsLearning(false);
     setErrors(irisBrain.state.errors);
     setHiddenLayers(irisBrain.state.hiddenLayers.join(' '));
     setLearning(irisBrain.state.learnigRate);
+    setErrorThresh(irisBrain.state.errorThresh);
     setIteration(irisBrain.state.iterations);
     setIrisName('');
     setIrisTypeArray([0, 0, 0]);
@@ -113,7 +128,7 @@ const SettingsGroup = () => {
             type="number"
             value={iterations}
             min="1"
-            max="2000"
+            max="8000"
             onChange={(e) => handleIterations(e)}
           />
           <label htmlFor="learning-rate">Learning Rate:</label>
@@ -130,23 +145,27 @@ const SettingsGroup = () => {
         <div className="container">
           <label htmlFor="error-thresh">Error Thresh:</label>
           <Input
+            value={errorThresh}
             id="error-thresh"
             type="number"
             min="0.001"
             step="0.001"
             max="0.999"
+            onChange={(e) => handleErrorThresh(e)}
           />
         </div>
         <div className="container">
           <Textarea />
           <Button onClick={handleResetAll}>Reset all settings</Button>
         </div>
-        <Button onClick={handleTrain}>Train</Button>
+        <Button onClick={handleLearn}>Learn</Button>
       </StyledTrainBox>
       <p>Error: {errors.error}</p>
       <p>Iterations: {errors.iterations}</p>
-
-      {isTraining && (
+      <p style={{ color: 'green' }}>
+        {learningInfo && 'learning was successful!'}
+      </p>
+      {isLearning && (
         <>
           <div>
             <img

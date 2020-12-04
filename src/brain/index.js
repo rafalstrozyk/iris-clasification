@@ -51,6 +51,7 @@ const irisBrain = {
       logPeriod: 1,
       iterations: irisBrain.state.iterations,
       learningRate: irisBrain.state.learnigRate,
+      errorThresh: irisBrain.state.errorThresh,
     });
   },
   set setHiddenLayers(hiddenLayers) {
@@ -66,7 +67,7 @@ const irisBrain = {
     irisBrain.state.hiddenLayers = [4, 3];
   },
   set setErrorThresh(newErrorThresh) {
-    irisBrain.state.errorThresh = newErrorThresh;
+    irisBrain.state.errorThresh = parseFloat(newErrorThresh);
   },
   set setIterations(newIterations) {
     irisBrain.state.iterations = parseInt(newIterations);
