@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import Button from './Button';
 import img1 from '../images/setosa.jpg';
@@ -38,7 +38,6 @@ const StyledClassificationWindow = styled.div`
 `;
 
 const ClasificationWindow = ({ irisName, irisTypeArray, setIsOpen , isOpen}) => {
-  // const [isOpen, setIsOpen] = useState(true);
   const imgArray = [img1, img2, img3];
 
   function imageGenerate() {

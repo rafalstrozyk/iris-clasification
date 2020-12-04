@@ -1,7 +1,6 @@
 import brain from '../../node_modules/brain.js/src/index';
 import { irisLearningData } from './data';
 
-// initial state
 const initState = {
   errors: {
     error: '',
@@ -9,120 +8,91 @@ const initState = {
   },
   irisNames: ['setosa', 'versicolor', 'virginica'],
   irisData: irisLearningData,
-  initHiddenLayers: [4, 3],
-  initIterations: 1,
-  initLearnigRate: 0.1,
+  hiddenLayers: [4, 3],
+  iterations: 1,
+  learnigRate: 0.1,
+  errorThresh: 0.005,
+  trainedNet: null,
 };
-let state = initState;
 
-// brain
-let net = new brain.NeuralNetwork({
-  hiddenLayers: state.initHiddenLayers,
-});
-
-// hange hiddel layers
-export function hangeHiddenLayers(hiddenLayers) {
-  if (hiddenLayers.length > 0) {
-    net = new brain.NeuralNetwork({
-      hiddenLayers: hiddenLayers,
+const irisBrain = {
+  state: { ...initState },
+  net: () => {
+    return new brain.NeuralNetwork({
+      hiddenLayers: irisBrain.state.hiddenLayers,
     });
-  }
-}
+  },
+  irisTraining: () => {
+    const outputData = irisBrain.state.irisData.map((item) => [
+      item.species === 'setosa' ? 1 : 0,
+      item.species === 'versicolor' ? 1 : 0,
+      item.species === 'virginica' ? 1 : 0,
+    ]);
 
-export function resetAllSettings() {
-  state = initState;
-}
-// get hidden layers
-export function getHiddenLayers() {
-  return state.initHiddenLayers;
-}
+    const trainingData = irisBrain.state.irisData.map((item) => [
+      item.sepalLength,
+      item.sepalWidth,
+      item.petalLength,
+      item.petalWidth,
+    ]);
 
-// reset hidden layers
-export function resetHiddenLayers() {
-  net = new brain.NeuralNetwork({
-    hiddenLayers: state.initHiddenLayers,
-  });
-}
+    const fullData = [];
+    for (let i = 0; i < irisBrain.state.irisData.length; i++) {
+      fullData.push({
+        input: trainingData[i],
+        output: outputData[i],
+      });
+    }
 
-// training AI
-export function irisTraining() {
-  const outputData = state.irisData.map((item) => [
-    item.species === 'setosa' ? 1 : 0,
-    item.species === 'versicolor' ? 1 : 0,
-    item.species === 'virginica' ? 1 : 0,
-  ]);
+    irisBrain.state.trainedNet = irisBrain.net();
 
-  const trainingData = state.irisData.map((item) => [
-    item.sepalLength,
-    item.sepalWidth,
-    item.petalLength,
-    item.petalWidth,
-  ]);
-
-  const fullData = [];
-  for (let i = 0; i < state.irisData.length; i++) {
-    fullData.push({
-      input: trainingData[i],
-      output: outputData[i],
+    irisBrain.state.trainedNet.train(fullData, {
+      log: (error) => (irisBrain.state.errors = error),
+      logPeriod: 1,
+      iterations: irisBrain.state.iterations,
+      learningRate: irisBrain.state.learnigRate,
     });
-  }
-  console.log(state.initLearnigRate);
+  },
+  set setHiddenLayers(hiddenLayers) {
+    if (hiddenLayers.length > 0) {
+      const str = hiddenLayers;
+      const words = str.split(' ');
+      const intArray = words.map((str) => parseInt(str));
+      const intArrayNonNan = intArray.filter((val) => !Number.isNaN(val));
+      irisBrain.state.hiddenLayers = intArrayNonNan;
+    }
+  },
+  resetHiddenLayers: () => {
+    irisBrain.state.hiddenLayers = [4, 3];
+  },
+  set setErrorThresh(newErrorThresh) {
+    irisBrain.state.errorThresh = newErrorThresh;
+  },
+  set setIterations(newIterations) {
+    irisBrain.state.iterations = parseInt(newIterations);
+  },
+  set setLearningRate(newLearningRate) {
+    irisBrain.state.learnigRate = parseFloat(newLearningRate);
+  },
+  set setData(newData) {
+    irisBrain.state.irisData = JSON.parse(newData);
+  },
+  resetData: () => {
+    irisBrain.state.irisData = irisLearningData;
+  },
+  irisClasification: (item) => {
+    return irisBrain.state.trainedNet.run(item);
+  },
+  nameClasification: (values) => {
+    let i = values.indexOf(Math.max(...values));
+    return irisBrain.state.irisNames[i];
+  },
+  svgGenerator: () => {
+    return brain.utilities.toSVG(irisBrain.state.trainedNet);
+  },
+  resetAllSettings: () => {
+    irisBrain.state = { ...initState };
+  },
+};
 
-  net.train(fullData, {
-    log: (error) => (state.errors = error),
-    logPeriod: 1,
-    iterations: state.initIterations,
-    learningRate: state.initLearnigRate,
-  });
-}
-
-export function setIterations(iterations) {
-  state.initIterations = iterations;
-}
-export function setLearningRate(learningRate) {
-  state.initLearnigRate = learningRate;
-}
-export function getIterations() {
-  return state.initIterations;
-}
-export function getLearningRate() {
-  return state.initLearnigRate;
-}
-
-// clasification iris
-function irisClasification(item) {
-  return net.run(item);
-}
-
-export function getIrisLearningData() {
-  return state.irisData;
-}
-
-// set new learning data
-export function setIrisLearningData(newData) {
-  if (newData) {
-    state.irisData = newData;
-  }
-}
-
-// reset data to initial state learning data
-export function resetData() {
-  state.irisData = irisLearningData;
-}
-
-// get iris type name
-export function irisNameClasification(values) {
-  let i = values.indexOf(Math.max(...values));
-  return state.irisNames[i];
-}
-
-export function svgGenerator() {
-  return brain.utilities.toSVG(net);
-}
-
-// get error info
-export function errorInfo() {
-  return state.errors;
-}
-
-export default irisClasification;
+export default irisBrain;

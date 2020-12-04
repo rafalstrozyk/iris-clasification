@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { getIrisLearningData, setIrisLearningData, resetData } from '../brain';
+import irisBrain from '../brain';
 import Button from './Button';
 
 const StyledTextarea = styled.div`
   position: relative;
-  form {
+  .container {
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    label {
-      margin-top: 15px;
-      color: #f2ebdc;
-      font-size: 2.2rem;
-    }
-
-    #data {
-      margin: 20px 0;
-    }
   }
+
+  label {
+    margin-top: 15px;
+    color: #f2ebdc;
+    font-size: 2.2rem;
+  }
+
+  #data {
+    margin: 20px 0;
+  }
+
   .card {
     position: fixed;
     top: 0;
@@ -40,43 +41,48 @@ const StyledTextarea = styled.div`
 
 const Textarea = () => {
   const [irisData, setIrisData] = useState(
-    JSON.stringify(getIrisLearningData(), undefined, 2)
+    JSON.stringify(irisBrain.state.irisData, undefined, 2)
   );
+  const [saved, setSaved] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   function handleChange(e) {
     setIrisData(e.target.value);
+    setSaved(false);
   }
 
   function hanldeResetData() {
-    resetData();
-    setIrisData(getIrisLearningData());
+    irisBrain.resetData();
+    setIrisData(JSON.stringify(irisBrain.state.irisData, undefined, 2));
+    setSaved(true);
   }
 
-  function handleSubmit(e) {
-    setIrisLearningData(JSON.parse(irisData));
-    setIsOpen(!isOpen);
-    e.preventDefault();
+  function handleSubmit() {
+    irisBrain.setData = irisData;
+    setSaved(true);
   }
 
   return (
     <StyledTextarea>
       {isOpen ? (
         <div className="card">
-          <form onSubmit={(e) => handleSubmit(e)}>
+          <div className="container">
             <label htmlFor="data">Data</label>
             <textarea
               id="data"
-              style={{ width: '400px', height: '80vh' }}
+              style={{ width: '400px', height: '72vh' }}
               value={irisData}
               onChange={(e) => handleChange(e)}
             />
+            <p style={{ color: 'green' }}>
+              {saved && 'data saved succesfull!'}
+            </p>
             <div className="buttons-group">
               <Button onClick={hanldeResetData}>Reset starting data</Button>
-              <Button type="submit">Ok</Button>
+              <Button onClick={handleSubmit}>Ok</Button>
               <Button onClick={() => setIsOpen(!isOpen)}>Close</Button>
             </div>
-          </form>
+          </div>
         </div>
       ) : (
         <Button onClick={() => setIsOpen(!isOpen)}>Data setings</Button>

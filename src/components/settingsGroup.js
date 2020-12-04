@@ -1,4 +1,4 @@
-import React, { useContext, useState} from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import IrisSliderGroup from './irisSliderGroup';
 import Button from './Button';
@@ -6,19 +6,7 @@ import Input from './Input';
 import Textarea from './textarea';
 import ClasificationWindw from './ClasificationWindow';
 import { Context } from '../globalState/store';
-import irisClasification, {
-  hangeHiddenLayers,
-  getHiddenLayers,
-  errorInfo,
-  irisTraining,
-  irisNameClasification,
-  resetAllSettings,
-  svgGenerator,
-  setIterations,
-  setLearningRate,
-  getLearningRate,
-  getIterations,
-} from '../brain';
+import irisBrain from '../brain';
 
 const StyledSettingsGroup = styled.div`
   display: flex;
@@ -50,67 +38,62 @@ const SettingsGroup = () => {
   const [state] = useContext(Context);
   const [isTraining, setIsTrainig] = useState(false);
   const [isClasification, setIsClasification] = useState(false);
-  const [errors, setErrors] = useState(errorInfo());
-  const [hiddenLayers, setHiddenLayers] = useState(getHiddenLayers().join(' '));
+  const [errors, setErrors] = useState(irisBrain.state.errors);
+  const [hiddenLayers, setHiddenLayers] = useState(
+    irisBrain.state.hiddenLayers.join(' ')
+  );
   const [irisName, setIrisName] = useState('');
   const [irisTypeArray, setIrisTypeArray] = useState([0, 0, 0]);
-  const [iterations, setIteration] = useState(getIterations());
-  const [learning, setLearning] = useState(getLearningRate());
+  const [iterations, setIteration] = useState(irisBrain.state.iterations);
+  const [learning, setLearning] = useState(irisBrain.state.learnigRate);
   const [openClasificationWindow, setOpenClasificationWindow] = useState(false);
 
   function handleIrisClarification() {
     setIsClasification(true);
     setOpenClasificationWindow(true);
-    const output = irisClasification([
+    const output = irisBrain.irisClasification([
       state.sepalLength,
       state.sepalWidth,
       state.petalLenght,
       state.petalWidth,
     ]);
 
-    setIrisName(irisNameClasification(output));
+    setIrisName(irisBrain.nameClasification(output));
     setIrisTypeArray(output);
   }
 
   function handleTrain() {
-    irisTraining();
-    setErrors(errorInfo());
+    irisBrain.irisTraining();
+    setErrors(irisBrain.state.errors);
     setIsTrainig(true);
   }
 
   function handleTextToArray(e) {
     setIsTrainig(false);
     setHiddenLayers(e.target.value);
-    const str = e.target.value;
-    const words = str.split(' ');
-    const intArray = words.map((str) => parseInt(str));
-    const intArrayNonNan = intArray.filter((val) => !Number.isNaN(val));
-    hangeHiddenLayers(intArrayNonNan);
+    irisBrain.setHiddenLayers = e.target.value;
   }
 
   function handleIterations(e) {
-    // setIsTrainig(false);
     setIteration(e.target.value);
-    setIterations(parseInt(e.target.value));
+    irisBrain.setIterations = e.target.value;
   }
   function handleLearningRate(e) {
-    // setIsTrainig(false);
     setLearning(e.target.value);
-    setLearningRate(parseFloat(e.target.value));
+    irisBrain.setLearningRate = e.target.value;
   }
 
   function handleResetAll() {
-    resetAllSettings();
+    irisBrain.resetAllSettings();
+    irisBrain.state.iterations = 1;
     setIsClasification(false);
     setIsTrainig(false);
-    setErrors(errorInfo());
-    setHiddenLayers(getHiddenLayers().join(' '));
-    setIterations(1);
-    setLearning(getLearningRate());
-    setIteration(getIterations());
+    setErrors(irisBrain.state.errors);
+    setHiddenLayers(irisBrain.state.hiddenLayers.join(' '));
+    setLearning(irisBrain.state.learnigRate);
+    setIteration(irisBrain.state.iterations);
     setIrisName('');
     setIrisTypeArray([0, 0, 0]);
-    console.log(getIterations());
   }
 
   return (
@@ -145,6 +128,16 @@ const SettingsGroup = () => {
           />
         </div>
         <div className="container">
+          <label htmlFor="error-thresh">Error Thresh:</label>
+          <Input
+            id="error-thresh"
+            type="number"
+            min="0.001"
+            step="0.001"
+            max="0.999"
+          />
+        </div>
+        <div className="container">
           <Textarea />
           <Button onClick={handleResetAll}>Reset all settings</Button>
         </div>
@@ -157,7 +150,7 @@ const SettingsGroup = () => {
         <>
           <div>
             <img
-              src={`data:image/svg+xml;utf8,${svgGenerator()}`}
+              src={`data:image/svg+xml;utf8,${irisBrain.svgGenerator()}`}
               alt="diagram"
             />
           </div>
